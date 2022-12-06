@@ -1,12 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>welcome to list Manager2 view page</title>
+	<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-	
+	<div id="myDiv" class="header">
+		<h2 style="margin:5px">My List Manager</h2>
+		<input type="text" placeholder="Title..." id="myInput">
+		<span type="button" class="addBtn" onclick="newElement()">Add</span>
+	</div>
+	<ul id="myUl">
+		<li>Hit the gym</li>
+		<li class="checked">Pay the bills</li>
+
+	</ul>
+	<script>
+		// create a close button and append it to each li.
+		let myNodeList = document.getElementsByTagName('li')
+		for (let i = 0; i < myNodeList.length; i++) {
+			let span = document.createElement('span');
+			span.className = 'close';
+			let txt = document.createTextNode("\u00D7");
+			span.appendChild(txt)
+			myNodeList[i].appendChild(span);
+		}
+		// click close button to hide a list item.
+		let closebtn = document.getElementsByClassName("close");
+		for (let i = 0; i < closebtn.length; i++) {
+			closebtn[i].onclick = function () {
+				let div = this.parentElement;
+				div.style.display = "none";
+			}
+		}
+		// add a checked symbol when clicking on list item.
+		var list = document.querySelector('ul');
+		list.addEventListener('click', function (ev) {
+			if (ev.target.tagName === 'LI') {
+				ev.target.classList.toggle('checked');
+			}
+		});
+		function newElement(){
+			let li = document.createElement('li');
+			let item_to_add = document.getElementById("myInput").value;
+			t = document.createTextNode(item_to_add);
+			li.appendChild(t);
+			if (item_to_add === "") {
+				alert("Please enter a list name!");
+			}
+			else{
+				 document.getElementById("myInput").value = "";
+				document.getElementById("myUl").appendChild(li);
+				let span = document.createElement("span");
+				let crossbtn = document.createTextNode('\u00d7');
+				span.className = "close";
+				span.appendChild(crossbtn);
+				li.appendChild(span);
+
+				for(i = 0; i < closebtn.length;i++){
+					closebtn[i].onclick = function(){
+						var div = this.parentElement
+						div.style.display = "none";
+					}
+				}
+			}
+		}
+	</script>
 </body>
+
 </html>

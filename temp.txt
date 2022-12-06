@@ -1,0 +1,33 @@
+<details>
+		<summary>
+		  LIST MANAGER
+		  <span class="icon">👇</span>
+		</summary>
+		<p>
+		  42
+		</p>
+	  </details>
+
+
+details  span.icon {
+	width: 24px;
+	height: 24px;
+	transition: all 0.3s;
+	margin-left: auto;
+  }
+  
+  details[open] summary span.icon {
+	transform: rotate(180deg);
+  } 
+  
+  summary {
+	display: flex;
+	cursor: pointer;
+  }
+  
+  summary::-webkit-details-marker {
+	display: none; 
+  } 
+  /* details { 
+	user-select: none;
+  }  */

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>main page</title>
+	<link rel="stylesheet" href="style2.css">
+</head>
+
+<body>
+	<div class="header">
+		<h2 style="margin:5px">My List Manager</h2>
+		<input type="text" placeholder="Title..." id="myInput">
+		<span type="button" class="addBtn" onclick="addElement()">Add</span>
+	</div>
+	<ul id="myUl">
+	</ul>
+	<script>
+		const endpoint = "http://127.0.0.1:8081/"
+		function getAllList() {
+			const list_endpoint = "http://127.0.0.1:8081/lists";
+			fetch(list_endpoint).then(response => response.json())
+				.then(list => {
+					console.log(list);
+					for (let i = 0; i < list.length; i++) {
+						wrap_into_list(list[i]);
+					}
+				})
+		}
+		function get_list_html_elements(raw_list){
+			const listName = raw_list.list_name;
+			const list_id = raw_list.id;
+			let txt = document.createTextNode(listName);
+			let span = document.createElement('span');
+			let span2 = document.createElement('span');
+			let span3 = document.createElement('span');
+			let editIcon = document.createTextNode('✍');
+			let dropIcon = document.createTextNode('👇');
+			let crossbtn = document.createTextNode('\u00d7');
+			span.className = 'close';
+			// ADD CLICK EVENT TO SPAN TAG DYNAMICALLY
+
+			span.addEventListener("click", function () { Delete_item(list_id); });
+			span.id = 'crossbtn_' + list_id;
+			span2.className = 'edit';
+			span2.addEventListener("click", function () { edit_item(list_id); })
+			span2.id = 'editIcon_' + list_id;
+			span3.className = 'dropIcon';
+			span3.addEventListener("click", function () { show_item(list_id); })
+			span3.id = 'dropIcon_' + list_id;
+			span.appendChild(crossbtn)
+			span2.appendChild(editIcon);
+			span3.appendChild(dropIcon);
+			return [txt,span,span2,span3];
+		}
+		function insert_into_container(container_element, raw_list) {
+			let list_html_elements = get_list_html_elements(raw_list);
+			container_element.appendChild(list_html_elements[0]);
+			container_element.appendChild(list_html_elements[1]);
+			container_element.appendChild(list_html_elements[2]);
+			container_element.appendChild(list_html_elements[3]);
+			return container_element;
+
+		}
+		function wrap_into_list(raw_list) {
+			const listName = raw_list.list_name;
+			const list_id = raw_list.id;
+			let li = document.createElement("li");
+			li.id = list_id;
+			li =insert_into_container(li,raw_list);
+			
+			document.getElementById("myUl").appendChild(li);
+		}
+		getAllList()
+
+		function Delete_item(li) {
+			const del_endpoint = endpoint + "delete/" + li
+			const delete_request = {
+				'method': 'DELETE',
+				'url': del_endpoint,
+				'headers': { 'content-type': 'application/json' },
+
+			}
+			// To check whether button is being clicked or not;
+			console.log("Got it!", li);
+			fetch(del_endpoint, delete_request).then(response => response.json()).then(lis => { console.log(lis) });
+			let li_to_delete = document.getElementById(li);
+			li_to_delete.remove();
+		}
+		function edit_item(item_id) {
+			var element = document.getElementById(item_id);
+			k = element.textContent.split("×✍👇",)[0];
+			let p = document.createElement("p");
+			p.id = "paragraph_id";
+			var input_element = document.createElement('input');
+			input_element.setAttribute('type', 'text');
+			input_element.setAttribute('value', k);
+			input_element.id = "updated_name";
+			let btn = document.createElement("button");
+			btn.innerHTML = "save";
+			btn.className = "addBtn";
+			p.appendChild(input_element);
+			p.appendChild(btn);
+			btn.addEventListener("click", function () { save(item_id); });
+			// element.parentNode.replaceChild(p, element);
+			element.replaceChildren(p);
+		}
+		function save(item_id) {
+			let save_updated_name = document.getElementById("updated_name").value;
+			let response_for_jsonRequest = { 'list_name': save_updated_name }
+			const update_endpoint = "http://127.0.0.1:8081/update/" + item_id;
+			const update_request = {
+				'method': 'PUT',
+				'url': update_endpoint,
+				'headers': {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(response_for_jsonRequest)
+			};
+			console.log(item_id, save_updated_name);
+			fetch(update_endpoint, update_request).then(response => response.json().then(updated_list => {
+				const element = document.getElementById("paragraph_id");
+				insert_into_container(element.parentNode, updated_list);
+				element.remove();
+			}));
+
+
+		}
+		function addElement() {
+			const add_endpoint = "http://127.0.0.1:8081/lists/add";
+			let item_to_add = document.getElementById("myInput").value;
+			let response_for_json_request = { "list_name": item_to_add };
+			const request = {
+				"method": "POST",
+				"headers": { "Content-Type": "application/json" },
+				body: JSON.stringify(response_for_json_request)
+			};
+
+			fetch(add_endpoint, request).then((response) => response.json()).then(data => {
+				console.log(data);
+				wrap_into_list(data);
+			});
+			document.getElementById("myInput").value=""
+			// newElement(item_to_add);
+
+		}
+
+
+
+	</script>
+</body>
+
+</html>
